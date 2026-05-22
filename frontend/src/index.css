@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+*{
+  font-family: 'Poppins', sans-serif;
+}
+
+body{
+  background-color: #F8F5F2;
+  color: #3B2F4A;
+}
+
+.react-calendar {
+  width: 100% !important;
+  border: none !important;
+  font-family: inherit;
+}
+
+.react-calendar__navigation {
+  margin-bottom: 20px;
+}
+
+.react-calendar__navigation button {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: #B57EDC;
+  font-weight: bold;
+}
+
+.react-calendar__tile {
+  border-radius: 20px;
+  padding: 14px 0;
+  transition: 0.2s;
+}
+
+.react-calendar__tile:hover {
+  background: #F8D7E8 !important;
+}
+
+.react-calendar__tile--active {
+  background: #E8B4D3 !important;
+  color: white !important;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: #d66ba0;
+}
+
+.react-calendar__tile--now {
+  background: #fce7f3 !important;
+  color: #B57EDC !important;
+  font-weight: bold;
+}
