@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaMoon } from "react-icons/fa";
 import { useState } from "react";
 import API from "../services/api";
+import AlertModal from "../components/AlertModal";
 
 function Login() {
     const navigate = useNavigate();
@@ -9,8 +10,22 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async (e) => {
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
 
+  const closeAlert = () => {
+    setAlertModal((prev) => ({ ...prev, isOpen: false }));
+    // If it was a success message, navigate to dashboard after closing
+    if (alertModal.type === "info" && alertModal.title === "Login Berhasil") {
+      navigate("/dashboard");
+    }
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
@@ -25,16 +40,21 @@ function Login() {
         response.data.access_token
       );
 
-      alert("Login success 🌙");
-
-      navigate("/dashboard");
+      setAlertModal({
+        isOpen: true,
+        type: "info",
+        title: "Login Berhasil",
+        message: "Selamat datang kembali! 🌙",
+      });
 
     } catch (error) {
-
       console.log(error);
-
-      alert("Invalid email or password");
-
+      setAlertModal({
+        isOpen: true,
+        type: "error",
+        title: "Login Gagal",
+        message: "Email atau password yang Anda masukkan salah.",
+      });
     }
 
   };
@@ -99,6 +119,14 @@ function Login() {
         </p>
 
       </div>
+
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        type={alertModal.type}
+        title={alertModal.title}
+        message={alertModal.message}
+        onClose={closeAlert}
+      />
 
     </div>
   );

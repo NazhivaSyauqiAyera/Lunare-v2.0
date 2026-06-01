@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from database import engine
 from routes.auth import router as auth_router
 from routes.periods import router as period_router
+from routes.moods import router as mood_router
 from fastapi.middleware.cors import CORSMiddleware
 
 import models
@@ -20,6 +21,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app.include_router(auth_router)
 app.include_router(period_router)
+app.include_router(mood_router)
 
 @app.get("/")
 def home():
