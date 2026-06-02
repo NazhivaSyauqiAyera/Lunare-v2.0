@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Text, Float, DateTime
 from sqlalchemy.orm import relationship
+from datetime import datetime
 from database import Base
 
 class User(Base):
@@ -9,6 +10,13 @@ class User(Base):
     username = Column(String(100), unique=True)
     email = Column(String(100), unique=True)
     password = Column(String(255))
+    
+    full_name = Column(String(100), nullable=True)
+    birth_date = Column(Date, nullable=True)
+    height = Column(Float, nullable=True)
+    weight = Column(Float, nullable=True)
+    profile_picture = Column(String(255), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
     periods = relationship("Period", back_populates="user")
     moods = relationship("Mood", back_populates="user")

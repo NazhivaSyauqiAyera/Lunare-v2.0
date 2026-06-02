@@ -1,14 +1,14 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaMoon } from "react-icons/fa";
 import { useState } from "react";
-import API from "../services/api";
-import AlertModal from "../components/AlertModal";
+import AlertModal from "../components/common/AlertModal";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
-    const navigate = useNavigate();
-
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [alertModal, setAlertModal] = useState({
     isOpen: false,
@@ -19,34 +19,15 @@ function Login() {
 
   const closeAlert = () => {
     setAlertModal((prev) => ({ ...prev, isOpen: false }));
-    // If it was a success message, navigate to dashboard after closing
-    if (alertModal.type === "info" && alertModal.title === "Login Berhasil") {
-      navigate("/dashboard");
-    }
+    // Dashboard redirection is handled by App.jsx ProtectedRoute when token changes
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
-
-      const response = await API.post("/login", {
-        email,
-        password,
-      });
-
-      localStorage.setItem(
-        "token",
-        response.data.access_token
-      );
-
-      setAlertModal({
-        isOpen: true,
-        type: "info",
-        title: "Login Berhasil",
-        message: "Selamat datang kembali! 🌙",
-      });
-
+      await login(email, password);
     } catch (error) {
       console.log(error);
       setAlertModal({
@@ -55,33 +36,23 @@ function Login() {
         title: "Login Gagal",
         message: "Email atau password yang Anda masukkan salah.",
       });
+    } finally {
+      setLoading(false);
     }
-
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8F5F2]">
-
       <div className="w-full max-w-md bg-white p-10 rounded-3xl shadow-xl">
-
         <div className="flex justify-center mb-5">
           <div className="bg-[#E8B4D3] p-4 rounded-full">
             <FaMoon className="text-white text-3xl" />
           </div>
         </div>
+        <h1 className="text-4xl font-bold text-center mb-2">Lunare</h1>
+        <p className="text-center text-gray-500 mb-8">Track your cycle beautifully</p>
 
-        <h1 className="text-4xl font-bold text-center mb-2">
-          Lunare
-        </h1>
-
-        <p className="text-center text-gray-500 mb-8">
-          Track your cycle beautifully
-        </p>
-
-        <form 
-        onSubmit={handleLogin}
-        className="space-y-5">
-
+        <form onSubmit={handleLogin} className="space-y-5">
           <input
             type="email"
             placeholder="Email"
@@ -89,7 +60,6 @@ function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-
           <input
             type="password"
             placeholder="Password"
@@ -97,27 +67,21 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-
           <button
-            className="w-full bg-[#E8B4D3] hover:bg-[#d99ac1] text-white p-4 rounded-xl font-semibold transition"
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#E8B4D3] hover:bg-[#d99ac1] text-white p-4 rounded-xl font-semibold transition disabled:opacity-50"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
-
         </form>
 
         <p className="text-center mt-6 text-gray-500">
           Don’t have an account?{" "}
-
-          <Link
-            to="/register"
-            className="text-[#B57EDC] font-semibold"
-          >
+          <Link to="/register" className="text-[#B57EDC] font-semibold">
             Register
           </Link>
-
         </p>
-
       </div>
 
       <AlertModal
@@ -127,7 +91,6 @@ function Login() {
         message={alertModal.message}
         onClose={closeAlert}
       />
-
     </div>
   );
 }

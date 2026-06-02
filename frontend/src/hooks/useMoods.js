@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import API from "../services/api";
+import * as moodService from "../services/moodService";
 
 const MOOD_TYPES = [
   { type: "happy", emoji: "😊", label: "Happy" },
@@ -18,8 +18,8 @@ function useMoods() {
 
   const fetchMoods = useCallback(async () => {
     try {
-      const response = await API.get("/moods");
-      setMoods(response.data);
+      const data = await moodService.getMoods();
+      setMoods(data);
     } catch (error) {
       console.log("Error fetching moods:", error);
     } finally {
@@ -29,7 +29,7 @@ function useMoods() {
 
   const addMood = async (data) => {
     try {
-      await API.post("/moods", data);
+      await moodService.addMood(data);
       await fetchMoods();
       return true;
     } catch (error) {
@@ -40,7 +40,7 @@ function useMoods() {
 
   const deleteMood = async (id) => {
     try {
-      await API.delete(`/moods/${id}`);
+      await moodService.deleteMood(id);
       await fetchMoods();
       return true;
     } catch (error) {

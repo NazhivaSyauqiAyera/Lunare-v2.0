@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FaMoon } from "react-icons/fa";
 import { useState } from "react";
-import API from "../services/api";
-import AlertModal from "../components/AlertModal";
+import AlertModal from "../components/common/AlertModal";
+import { useAuth } from "../context/AuthContext";
 
 function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -54,12 +55,8 @@ function Register() {
     setLoading(true);
 
     try {
-      await API.post("/register", {
-        username,
-        email,
-        password,
-      });
-
+      await register(username, email, password);
+      
       setAlertModal({
         isOpen: true,
         type: "info",
@@ -93,22 +90,14 @@ function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8F5F2]">
-
       <div className="w-full max-w-md bg-white p-10 rounded-3xl shadow-xl">
-
         <div className="flex justify-center mb-5">
           <div className="bg-[#E8B4D3] p-4 rounded-full">
             <FaMoon className="text-white text-3xl" />
           </div>
         </div>
-
-        <h1 className="text-4xl font-bold text-center mb-2">
-          Create Account
-        </h1>
-
-        <p className="text-center text-gray-500 mb-8">
-          Start tracking your cycle beautifully
-        </p>
+        <h1 className="text-4xl font-bold text-center mb-2">Create Account</h1>
+        <p className="text-center text-gray-500 mb-8">Start tracking your cycle beautifully</p>
 
         {error && (
           <div className="bg-red-50 text-red-500 p-4 rounded-xl mb-5 text-sm text-center font-medium">
@@ -116,11 +105,7 @@ function Register() {
           </div>
         )}
 
-        <form
-          onSubmit={handleRegister}
-          className="space-y-5"
-        >
-
+        <form onSubmit={handleRegister} className="space-y-5">
           <input
             type="text"
             placeholder="Username"
@@ -128,7 +113,6 @@ function Register() {
             onChange={(e) => setUsername(e.target.value)}
             className="w-full p-4 rounded-xl border border-gray-200 outline-none focus:border-[#E8B4D3] transition"
           />
-
           <input
             type="email"
             placeholder="Email"
@@ -136,7 +120,6 @@ function Register() {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full p-4 rounded-xl border border-gray-200 outline-none focus:border-[#E8B4D3] transition"
           />
-
           <input
             type="password"
             placeholder="Password"
@@ -144,7 +127,6 @@ function Register() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-4 rounded-xl border border-gray-200 outline-none focus:border-[#E8B4D3] transition"
           />
-
           <button
             type="submit"
             disabled={loading}
@@ -152,21 +134,14 @@ function Register() {
           >
             {loading ? "Creating account..." : "Register"}
           </button>
-
         </form>
 
         <p className="text-center mt-6 text-gray-500">
           Already have an account?{" "}
-
-          <Link
-            to="/"
-            className="text-[#B57EDC] font-semibold hover:underline"
-          >
+          <Link to="/" className="text-[#B57EDC] font-semibold hover:underline">
             Login
           </Link>
-
         </p>
-
       </div>
 
       <AlertModal
@@ -176,7 +151,6 @@ function Register() {
         message={alertModal.message}
         onClose={closeAlert}
       />
-
     </div>
   );
 }

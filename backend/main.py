@@ -4,11 +4,15 @@ from routes.auth import router as auth_router
 from routes.periods import router as period_router
 from routes.moods import router as mood_router
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.staticfiles import StaticFiles
+import os
 import models
 
+# Ensure uploads directory exists
+os.makedirs("uploads/profile_pictures", exist_ok=True)
 
 app = FastAPI()
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

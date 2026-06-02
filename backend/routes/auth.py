@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
+import os
+import uuid
 
 from database import SessionLocal
 import models
@@ -125,14 +127,58 @@ def update_profile(
     if profile_data.password:
         db_user.password = hash_password(profile_data.password)
 
+    if profile_data.full_name is not None:
+        db_user.full_name = profile_data.full_name
+    if profile_data.birth_date is not None:
+        db_user.birth_date = profile_data.birth_date
+    if profile_data.height is not None:
+        db_user.height = profile_data.height
+    if profile_data.weight is not None:
+        db_user.weight = profile_data.weight
+
     db.commit()
     db.refresh(db_user)
 
     return {
         "message": "Profile updated successfully",
-        "user": {
-            "id": db_user.id,
-            "username": db_user.username,
-            "email": db_user.email
-        }
+        "user": db_user
+    }
+
+
+# UPLOAD PROFILE PHOTO
+@router.post("/profile/upload-photo")
+async def upload_photo(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user)
+):
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Validate extension
+    allowed_extensions = [".jpg", ".jpeg", ".png"]
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in allowed_extensions:
+        raise HTTPException(status_code=400, detail="Only JPG, JPEG, and PNG files are allowed")
+
+    # Generate unique filename
+    unique_filename = f"{uuid.uuid4()}{ext}"
+    file_path = os.path.join("uploads", "profile_pictures", unique_filename)
+
+    # Save file
+    try:
+        with open(file_path, "wb") as buffer:
+            buffer.write(await file.read())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Could not save file")
+
+    # Update DB
+    db_user.profile_picture = f"/uploads/profile_pictures/{unique_filename}"
+    db.commit()
+    db.refresh(db_user)
+
+    return {
+        "message": "Profile picture updated successfully",
+        "profile_picture": db_user.profile_picture
     }
